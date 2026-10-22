@@ -1,0 +1,54 @@
+package com.backend.business;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.backend.dto.ChefeSubordinadoDTO;
+import com.backend.entity.ColaboradorEntity;
+import com.backend.repository.ColaboradorRepository;
+import com.backend.util.SenhaUtil;
+
+@Service
+public class ColaboradorBusiness {
+
+	@Autowired
+	ColaboradorRepository colaboradorRepository;
+	
+	public ColaboradorEntity findById(Integer id) {
+		return colaboradorRepository.findById(id).get();
+	}
+	
+	public List<ColaboradorEntity> findAll() {
+		return colaboradorRepository.findAll();
+	}
+	
+	public ColaboradorEntity save(ColaboradorEntity colaboradorEntity) throws Exception{
+		
+		colaboradorEntity.setScore(SenhaUtil.calculaComplexidade(colaboradorEntity.getSenha()));
+		
+		colaboradorEntity.setSenha(SenhaUtil.encryptPassword(colaboradorEntity.getSenha()));
+		
+		return colaboradorRepository.save(colaboradorEntity);
+	}
+	
+	public ColaboradorEntity associaSubordinado(ChefeSubordinadoDTO chefeSubordinadoDTO) {
+
+		ColaboradorEntity chefe = colaboradorRepository.findById(chefeSubordinadoDTO.getIdChefe()).orElse(null);
+		ColaboradorEntity subordinado = colaboradorRepository.findById(chefeSubordinadoDTO.getIdSubordinado()).orElse(null);
+		
+		subordinado.setChefe(chefe);
+		
+		colaboradorRepository.save(subordinado);
+		
+		return subordinado;
+	}
+	
+	
+	
+	
+	
+	
+	
+}

@@ -17,6 +17,4 @@ public class ChefeSubordinadoDTO {
 	public void setIdSubordinado(Integer idSubordinado) {
 		this.idSubordinado = idSubordinado;
 	}
-	
-	
 }

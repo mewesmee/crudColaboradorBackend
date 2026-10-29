@@ -2,6 +2,7 @@ package com.backend.business;
 
 import java.util.List;
 
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,9 +13,12 @@ import com.backend.util.SenhaUtil;
 
 @Service
 public class ColaboradorBusiness {
-
+		 
 	@Autowired
 	ColaboradorRepository colaboradorRepository;
+	
+	@Autowired
+	RabbitTemplate rabbitTemplate;
 	
 	public ColaboradorEntity findById(Integer id) {
 		return colaboradorRepository.findById(id).get();
@@ -26,11 +30,11 @@ public class ColaboradorBusiness {
 	
 	public ColaboradorEntity save(ColaboradorEntity colaboradorEntity) throws Exception{
 		
-		colaboradorEntity.setScore(SenhaUtil.calculaComplexidade(colaboradorEntity.getSenha()));
+		colaboradorEntity = colaboradorRepository.save(colaboradorEntity);
 		
-		colaboradorEntity.setSenha(SenhaUtil.encryptPassword(colaboradorEntity.getSenha()));
+		rabbitTemplate.convertAndSend("spring-boot-exchange", "foo.bar.baz", colaboradorEntity.getId());
 		
-		return colaboradorRepository.save(colaboradorEntity);
+		return colaboradorEntity;
 	}
 	
 	public ColaboradorEntity associaSubordinado(ChefeSubordinadoDTO chefeSubordinadoDTO) {
@@ -44,11 +48,4 @@ public class ColaboradorBusiness {
 		
 		return subordinado;
 	}
-	
-	
-	
-	
-	
-	
-	
 }
